@@ -6,9 +6,11 @@
 //
 
 import UIKit
+import Charts
 
 class DetailViewController: UIViewController {
 //MARK: - IBOutlet
+    @IBOutlet weak var barChart: BarChartView!
     @IBOutlet weak var companyNameLabel: UILabel!
     @IBOutlet weak var companySymbolLabel: UILabel!
     @IBOutlet weak var priceLabel: UILabel!
@@ -25,31 +27,43 @@ class DetailViewController: UIViewController {
     private let group = DispatchGroup()
     private var qouteData: QouteData?
     private var imageData: ImageData?
+    private var adjustedHistoricalPrices: [AdjustedHistoricalPrices]?
     
 //MARK: - View lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        
         detailsManager = DetailsManager()
         companyNameLabel.text = "Tinkoff"
         detailsManager.delegate = self
         activityIndicator.hidesWhenStopped = true
         qouteReset()
         
+        createChart()
+        
         detailsManager.request(for: selectedSymbol) { [unowned self] result in
             switch result {
             case .failure(let error ):
-//                switch error {
-//                case
-//                }
                 DispatchQueue.main.async {
                     self.alertForError(title: "Something goes wrong", message: "\(error.localizedDescription)", preferredStyle: .alert)
                 }
             case .success(let company):
-            
+                
                 self.detailsManager.updateInterface(for: company!)
             }
+        }
+        detailsManager.fetchHistoricalPrices(for: selectedSymbol) { [unowned self] result in
+            DispatchQueue.main.async {
+            
+            switch result {
+        
+            case.failure(let error):
+                self.alertForError(title: "Something goes wrong", message: "\(error.localizedDescription)", preferredStyle: .alert)
+            case .success(let historicalPrices):
+                adjustedHistoricalPrices = getMonthInfo(for: historicalPrices!)
+                
+            }
+            }
+            
         }
     }
     
@@ -62,6 +76,19 @@ class DetailViewController: UIViewController {
         self.priceChangeLabel.text = "-"
         self.currencyLabel.text = ""
         self.priceChangeLabel.textColor = .white
+    }
+    
+    private func getMonthInfo(for info: [HistoricalPrice]) -> [AdjustedHistoricalPrices] {
+        var adjustedHistoricalPrices: [AdjustedHistoricalPrices] = []
+        let historicPrices = info
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        
+        for historicPrice in historicPrices {
+            let date = dateFormatter.date(from: historicPrice.date)
+            adjustedHistoricalPrices.append(AdjustedHistoricalPrices(highPrice: historicPrice.high, data: date!)!)
+        }
+        return adjustedHistoricalPrices
     }
 }
 
@@ -96,4 +123,34 @@ extension DetailViewController {
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         present(alert, animated: true, completion: nil)
     }
+}
+
+
+extension DetailViewController {
+    
+    func createChart() {
+//        let xAxis = barChart.xAxis
+//        let roghtAxis = barChart.rightAxis
+//
+//        let legend = barChart.legend
+        
+        var entries = [BarChartDataEntry]()
+        for x in 0..<12{
+            let randomElement = Int.random(in: 1...365)
+            
+            entries.append(BarChartDataEntry(x: adjustedHistoricalPrices![randomElement].highPrice, y: nil, data: adjustedHistoricalPrices![randomElement].date))
+            
+            
+        }
+        
+        
+        let set = BarChartDataSet(entries: entries, label: "Cost")
+//        set.colors = ChartColorTemplates.liberty()
+        set.colors = [NSUIColor(cgColor: UIColor.systemYellow.cgColor)]
+        let data = BarChartData(dataSet: set)
+//        barChart.legend = .
+//        barChart.delegate
+        barChart.data = data
+    }
+    
 }

@@ -220,6 +220,11 @@
                                     <constraint firstItem="QUo-ES-51O" firstAttribute="leading" secondItem="K9e-3r-Qe7" secondAttribute="trailing" id="vGh-hb-zue"/>
                                 </constraints>
                             </stackView>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fQh-gf-nTN" customClass="BarChartView" customModule="Charts">
+                                <rect key="frame" x="20" y="506" width="374" height="246"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" red="0.098590143020000007" green="0.1175757274" blue="0.15810075400000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -240,6 +245,7 @@
                     </view>
                     <connections>
                         <outlet property="activityIndicator" destination="fds-sk-dBL" id="TlQ-Ww-BPd"/>
+                        <outlet property="barChart" destination="fQh-gf-nTN" id="olC-8y-p5o"/>
                         <outlet property="companyNameLabel" destination="Gyu-0X-GRG" id="8ps-ZW-7iD"/>
                         <outlet property="companySymbolLabel" destination="93b-X1-HCI" id="gnM-dP-fGr"/>
                         <outlet property="currencyLabel" destination="wFy-Wd-VNY" id="xZ8-F5-GUe"/>
@@ -274,6 +280,9 @@
         </scene>
     </scenes>
     <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="systemYellowColor">
             <color red="1" green="0.80000000000000004" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

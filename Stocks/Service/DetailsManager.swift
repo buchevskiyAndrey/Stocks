@@ -10,8 +10,9 @@ import UIKit
 
 protocol NetworkDetailsProtocol {
     var delegate: DetailsManagerProtocol? {get set}
-
+    
     func request(for symbol: String, completion: @escaping (Result<Company?, Error>) -> Void)
+    func fetchHistoricalPrices(for symbol: String, completion: @escaping (Result<[HistoricalPrice]?, Error>) -> Void)
     func updateInterface(for company: Company)
 }
 
@@ -27,14 +28,14 @@ class DetailsManager {
         case internalError
         case invalidInput
         var errorDescription: String? {
-        switch self {
-        case .badRequest:
-           return NSLocalizedString("Check your connection", comment: "Poor connection")
-        case .internalError:
-            return NSLocalizedString("App is broken :(", comment: "My error")
-        case .invalidInput:
-            return NSLocalizedString("The server hasn't found detailed information", comment: "API's problem")
-        }
+            switch self {
+            case .badRequest:
+                return NSLocalizedString("Check your connection", comment: "Poor connection")
+            case .internalError:
+                return NSLocalizedString("App is broken :(", comment: "My error")
+            case .invalidInput:
+                return NSLocalizedString("The server hasn't found detailed information", comment: "API's problem")
+            }
         }
     }
     
@@ -43,12 +44,15 @@ class DetailsManager {
     
     //MARK: - Private properties
     private let group = DispatchGroup()
-    
+    private let keys = [apiKeyForDetailedInfo1, apiKeyForDetailedInfo2, apiKeyForDetailedInfo3]
+    private var key: String {
+        return keys.randomElement() ?? ""
+    }
     
     //MARK: - Private methods
     private func fetchQoute(for symbol: String, completion: @escaping (Result<QouteData?, Error>) -> Void) {
         let selectedSymbol = symbol.split(separator: ".").joined(separator: "-")
-        let urlStringForQuote = "https://cloud.iexapis.com/stable/stock/\(selectedSymbol)/quote/displayPercent=true?&token=\(apiKeyForDetailedInfo)"
+        let urlStringForQuote = "https://cloud.iexapis.com/stable/stock/\(selectedSymbol)/quote/displayPercent=true?&token=\(key)"
         let urlResult = parseURL(urlString: urlStringForQuote)
         switch urlResult {
         case .failure(let error):
@@ -86,7 +90,7 @@ class DetailsManager {
     
     func fetchImage(for symbol: String, completion: @escaping (Result<ImageData?, Error>) -> Void) {
         let selectedSymbol = symbol.split(separator: ".").joined(separator: "-")
-        let urlStringForImage = "https://cloud.iexapis.com/stable/stock/\(selectedSymbol)/logo/quote?&token=\(apiKeyForDetailedInfo)"
+        let urlStringForImage = "https://cloud.iexapis.com/stable/stock/\(selectedSymbol)/logo/quote?&token=\(key)"
         let urlResult = parseURL(urlString: urlStringForImage)
         switch urlResult {
         case.failure(let error):
@@ -207,5 +211,46 @@ extension DetailsManager: NetworkDetailsProtocol {
     func updateInterface(for company: Company) {
         self.delegate?.distplayInfo(self, qoute: company.qouteData)
         self.delegate?.distplayImage(self, image: company.imageData)
+    }
+}
+
+
+extension DetailsManager {
+    func fetchHistoricalPrices(for symbol: String, completion: @escaping (Result<[HistoricalPrice]?, Error>) -> Void) {
+        let selectedSymbol = symbol.split(separator: ".").joined(separator: "-")
+        let urlStringForQuote = "https://cloud.iexapis.com/stable/stock/\(selectedSymbol)/chart/1y?token=\(key)"
+        let urlResult = parseURL(urlString: urlStringForQuote)
+        switch urlResult {
+        case .failure(let error):
+            completion(.failure(error))
+        case .success(let url):
+            let session = URLSession(configuration: .default)
+            group.enter()
+            let task = session.dataTask(with: url) { data, response, error in
+                defer {
+                    self.group.leave()
+                }
+                guard
+                    error == nil,
+                    (response as? HTTPURLResponse)?.statusCode == 200,
+                    let data = data
+                else {
+                    guard let error = error else {
+                        completion(.failure(DetailsManagerError.invalidInput))
+                        return
+                    }
+                    completion(.failure(error))
+                    return
+                }
+                let decoder = JSONDecoder()
+                do {
+                    let qouteData = try decoder.decode([HistoricalPrice].self, from: data)
+                    completion(.success(qouteData))
+                } catch {
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
+        }
     }
 }

@@ -113,6 +113,7 @@ extension TableViewController: UISearchResultsUpdating, UISearchControllerDelega
         return true
     }
 }
+
 //Error handling
 extension TableViewController {
     private func alertForError(title: String, message: String?, preferredStyle: UIAlertController.Style) {
