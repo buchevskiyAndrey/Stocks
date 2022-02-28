@@ -13,6 +13,4 @@ struct HistoricalPrice: Decodable {
     let high: Double
     let date: String
     
-    
-  
 }

@@ -9,65 +9,72 @@ import UIKit
 import Charts
 
 class DetailViewController: UIViewController {
-//MARK: - IBOutlet
+    //MARK: - IBOutlets
     @IBOutlet weak var barChart: BarChartView!
     @IBOutlet weak var companyNameLabel: UILabel!
     @IBOutlet weak var companySymbolLabel: UILabel!
     @IBOutlet weak var priceLabel: UILabel!
     @IBOutlet weak var priceChangeLabel: UILabel!
     @IBOutlet weak var currencyLabel: UILabel!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var logoView: UIImageView!
+    @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var historicPriceLabel: UILabel!
     
-//MARK: - Public properties
+    //MARK: - Public properties
     var selectedSymbol: String!
     
-//MARK: - Private properties
-    private var detailsManager: NetworkDetailsProtocol!
+    //MARK: - Private properties
+    private var networkManager: NetworkDetailsProtocol!
     private let group = DispatchGroup()
     private var qouteData: QouteData?
     private var imageData: ImageData?
-    private var adjustedHistoricalPrices: [AdjustedHistoricalPrices]?
+    private var adjustedHistoricalPrices: [AdjustedHistoricalPrice] = []
+    private let activityIndicator = UIActivityIndicatorView(style: .large)
     
-//MARK: - View lifecycle
+    //MARK: - View lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        detailsManager = DetailsManager()
+        networkManager = NetworkManager()
         companyNameLabel.text = "Tinkoff"
-        detailsManager.delegate = self
-        activityIndicator.hidesWhenStopped = true
+        networkManager.delegate = self
+        setUpActivityIndicator()
         qouteReset()
         
-        createChart()
-        
-        detailsManager.request(for: selectedSymbol) { [unowned self] result in
+        //Get detailed data
+        networkManager.request(for: selectedSymbol) { [weak self] result in
+            guard let self = self else { return }
             switch result {
             case .failure(let error ):
                 DispatchQueue.main.async {
                     self.alertForError(title: "Something goes wrong", message: "\(error.localizedDescription)", preferredStyle: .alert)
                 }
             case .success(let company):
-                
-                self.detailsManager.updateInterface(for: company!)
+                self.networkManager.updateInterface(for: company!)
             }
         }
-        detailsManager.fetchHistoricalPrices(for: selectedSymbol) { [unowned self] result in
-            DispatchQueue.main.async {
-            
-            switch result {
         
-            case.failure(let error):
-                self.alertForError(title: "Something goes wrong", message: "\(error.localizedDescription)", preferredStyle: .alert)
-            case .success(let historicalPrices):
-                adjustedHistoricalPrices = getMonthInfo(for: historicalPrices!)
-                
+        //Get data for barChart
+        networkManager.fetchHistoricalPrice(for: selectedSymbol) { [weak self] result in
+            guard let self = self else { return }
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else {return}
+                switch result {
+                case.failure(let error):
+                    self.alertForError(title: "Something goes wrong", message: "\(error.localizedDescription)", preferredStyle: .alert)
+                case .success(let historicalPrices):
+                    var counter = 0
+                    historicalPrices?.forEach{ item in
+                        guard let adjustedHistoricalPrice = AdjustedHistoricalPrice(historicalPrice: item, index: counter) else { return }
+                        counter += 1
+                        self.adjustedHistoricalPrices.append(adjustedHistoricalPrice)
+                    }
+                    self.createChart()
+                }
             }
-            }
-            
         }
     }
     
-//MARK: - Private methods
+    //MARK: - Private methods
     private func qouteReset() {
         self.activityIndicator.startAnimating()
         self.companyNameLabel.text = "-"
@@ -76,33 +83,36 @@ class DetailViewController: UIViewController {
         self.priceChangeLabel.text = "-"
         self.currencyLabel.text = ""
         self.priceChangeLabel.textColor = .white
+        self.historicPriceLabel.text = ""
+        self.dateLabel.text = ""
     }
     
-    private func getMonthInfo(for info: [HistoricalPrice]) -> [AdjustedHistoricalPrices] {
-        var adjustedHistoricalPrices: [AdjustedHistoricalPrices] = []
-        let historicPrices = info
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        
-        for historicPrice in historicPrices {
-            let date = dateFormatter.date(from: historicPrice.date)
-            adjustedHistoricalPrices.append(AdjustedHistoricalPrices(highPrice: historicPrice.high, data: date!)!)
-        }
-        return adjustedHistoricalPrices
+    private func setUpActivityIndicator() {
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.hidesWhenStopped = true
+        view.addSubview(activityIndicator)
+        activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -75).isActive = true
+    }
+    
+    private func alertForError(title: String, message: String?, preferredStyle: UIAlertController.Style) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: preferredStyle)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
     }
 }
 
 
 //MARK: - Extensions
 extension DetailViewController: DetailsManagerProtocol {
-    func distplayInfo(_: DetailsManager, qoute: QouteData) {
+    func distplayInfo(_: NetworkManager, qoute: QouteData) {
         self.activityIndicator.stopAnimating()
         self.companyNameLabel.text = qoute.companyName
         self.companySymbolLabel.text = qoute.symbol
         self.currencyLabel.text = qoute.currency
         self.priceLabel.text = "\(qoute.latestPrice)"
         self.priceChangeLabel.text = String(format: "%.3f", qoute.changePercent) + "%"
-
+        
         if qoute.changePercent > 0 {
             self.priceChangeLabel.textColor = .green
         } else if qoute.changePercent < 0 {
@@ -112,45 +122,73 @@ extension DetailViewController: DetailsManagerProtocol {
         }
     }
     
-    func distplayImage(_: DetailsManager, image: ImageData) {
-        self.logoView.image = image.image
+    func distplayImage(_: NetworkManager, image: UIImage) {
+        self.logoView.image = image
     }
 }
 
-extension DetailViewController {
-    private func alertForError(title: String, message: String?, preferredStyle: UIAlertController.Style) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: preferredStyle)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        present(alert, animated: true, completion: nil)
-    }
-}
-
-
-extension DetailViewController {
-    
-    func createChart() {
-//        let xAxis = barChart.xAxis
-//        let roghtAxis = barChart.rightAxis
-//
-//        let legend = barChart.legend
+//Set up chartBar
+extension DetailViewController: ChartViewDelegate {
+    private func setupData() {
+        let dataEntries = adjustedHistoricalPrices.map{ $0.transformToBarChartDataEntry() }
         
-        var entries = [BarChartDataEntry]()
-        for x in 0..<12{
-            let randomElement = Int.random(in: 1...365)
-            
-            entries.append(BarChartDataEntry(x: adjustedHistoricalPrices![randomElement].highPrice, y: nil, data: adjustedHistoricalPrices![randomElement].date))
-            
-            
-        }
+        let set1 = BarChartDataSet(entries: dataEntries)
+        set1.setColor(.systemYellow)
+        set1.highlightColor = .yellow
+        set1.highlightAlpha = 1
         
-        
-        let set = BarChartDataSet(entries: entries, label: "Cost")
-//        set.colors = ChartColorTemplates.liberty()
-        set.colors = [NSUIColor(cgColor: UIColor.systemYellow.cgColor)]
-        let data = BarChartData(dataSet: set)
-//        barChart.legend = .
-//        barChart.delegate
+        let data = BarChartData(dataSet: set1)
+        data.setDrawValues(false)
+        data.setValueTextColor(.white)
         barChart.data = data
     }
     
+    
+    private func createChart() {
+        setupData()
+        barChart.delegate = self
+        
+        // Hightlight
+        barChart.highlightPerTapEnabled = true
+        barChart.highlightFullBarEnabled = true
+        barChart.highlightPerDragEnabled = false
+        
+        // disable zoom function
+        barChart.pinchZoomEnabled = false
+        barChart.setScaleEnabled(false)
+        barChart.doubleTapToZoomEnabled = false
+        
+        // Bar, Grid Line, Background
+        barChart.drawBarShadowEnabled = false
+        barChart.drawGridBackgroundEnabled = false
+        barChart.drawBordersEnabled = false
+        barChart.borderColor = .white
+        
+        // Legend
+        barChart.legend.enabled = false
+        
+        // Chart Offset
+        barChart.setExtraOffsets(left: 10, top: 0, right: 20, bottom: 50)
+        
+        barChart.rightAxis.enabled = false
+        barChart.xAxis.enabled = false
+        
+        
+        let yAxis = barChart.leftAxis
+        yAxis.labelFont = .boldSystemFont(ofSize: 12)
+        yAxis.labelTextColor = .white
+        yAxis.setLabelCount(6, force: false)
+        yAxis.axisLineColor = .white
+        yAxis.labelPosition = .outsideChart
+        
+        barChart.animate(xAxisDuration: 2.5, easingOption: .easeOutQuart)
+    }
+    
+    func chartValueSelected(_ chartView: ChartViewBase, entry: ChartDataEntry, highlight: Highlight) {
+        dateLabel.text = adjustedHistoricalPrices[Int(entry.x)].date
+        historicPriceLabel.text = String(entry.y)
+    }
 }
+
+
+

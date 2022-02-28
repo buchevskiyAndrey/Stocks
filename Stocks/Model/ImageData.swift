@@ -8,10 +8,6 @@
 import Foundation
 import UIKit
 
-struct ImageData {
-    let image: UIImage
-    
-    init?(image: UIImage) {
-        self.image = image
-    }
+struct ImageData: Decodable {
+    let url: URL
 }

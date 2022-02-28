@@ -12,7 +12,7 @@ class TableViewController: UITableViewController {
 //MARK: - Private properties
     private let searchController = UISearchController(searchResultsController: nil)
     private let activityIndicator = UIActivityIndicatorView(style: .large)
-    private var searchManager: NetworkSearchProtocol!
+    private var networkManager: NetworkSearchProtocol!
     private var searchQuery: String!
     private var searchTimer: Timer?
     private var searchResults: SearchResults?
@@ -21,14 +21,13 @@ class TableViewController: UITableViewController {
 //MARK: - View lifecyclke
     override func viewDidLoad() {
         super.viewDidLoad()
-        searchManager = SearchManager()
+        networkManager = NetworkManager()
         setUpSearchBar()
         setUpActivityIndicator()
         tableView.backgroundView = SearchPlaceholderView()
     }
     
 // MARK: - Table view data source
-    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return searchResults?.bestMatches.count ?? 0
     }
@@ -71,12 +70,19 @@ class TableViewController: UITableViewController {
         activityIndicator.hidesWhenStopped = true
         view.addSubview(activityIndicator)
         activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -100).isActive = true
+        activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -80).isActive = true
     }
+    
+    private func alertForError(title: String, message: String?, preferredStyle: UIAlertController.Style) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: preferredStyle)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
+    } 
     
     @objc private  func performSearch() {
         activityIndicator.startAnimating()
-        searchManager.fetchSymbol(for: self.searchQuery) {[unowned self] completion in
+        networkManager.fetchSymbol(for: self.searchQuery) {[weak self] completion in
+            guard let self = self else { return }
             DispatchQueue.main.async {
                 switch completion {
                 case .success(let searchResults):
@@ -84,8 +90,8 @@ class TableViewController: UITableViewController {
                     self.activityIndicator.stopAnimating()
                     self.tableView.reloadData()
                 case .failure(let error):
-                    activityIndicator.stopAnimating()
-                    alertForError(title: "Something goes wrong", message: "\(error.localizedDescription)", preferredStyle: .alert)
+                    self.activityIndicator.stopAnimating()
+                    self.alertForError(title: "Something goes wrong", message: "\(error.localizedDescription)", preferredStyle: .alert)
                 }
             }
         }
@@ -111,15 +117,6 @@ extension TableViewController: UISearchResultsUpdating, UISearchControllerDelega
             self.searchTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(performSearch), userInfo: nil, repeats: false)
         }
         return true
-    }
-}
-
-//Error handling
-extension TableViewController {
-    private func alertForError(title: String, message: String?, preferredStyle: UIAlertController.Style) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: preferredStyle)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        present(alert, animated: true, completion: nil)
     }
 }
 

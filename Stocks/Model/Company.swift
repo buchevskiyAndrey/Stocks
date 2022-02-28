@@ -10,9 +10,9 @@ import UIKit
 
 struct Company {
     let qouteData: QouteData
-    let imageData: ImageData
+    let imageData: UIImage
     
-    init?(qouteData: QouteData, imageData: ImageData) {
+    init?(qouteData: QouteData, imageData: UIImage) {
         self.qouteData = qouteData
         self.imageData = imageData
     }
