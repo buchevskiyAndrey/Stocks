@@ -100,10 +100,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="fds-sk-dBL">
-                                <rect key="frame" x="197" y="438" width="20" height="20"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            </activityIndicatorView>
                             <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="W9m-Bf-wV6">
                                 <rect key="frame" x="40" y="44" width="334" height="64"/>
                                 <subviews>
@@ -220,29 +216,59 @@
                                     <constraint firstItem="QUo-ES-51O" firstAttribute="leading" secondItem="K9e-3r-Qe7" secondAttribute="trailing" id="vGh-hb-zue"/>
                                 </constraints>
                             </stackView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fQh-gf-nTN" customClass="BarChartView" customModule="Charts">
+                                <rect key="frame" x="0.0" y="409" width="414" height="403"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4FL-eP-sDI">
+                                <rect key="frame" x="100" y="812" width="214" height="24"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lhT-4t-lkI">
+                                <rect key="frame" x="100" y="385" width="214" height="24"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" red="0.098590143020000007" green="0.1175757274" blue="0.15810075400000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="rcf-CV-csS" secondAttribute="trailing" constant="40" id="8ZK-Jo-u9Q"/>
+                            <constraint firstItem="4FL-eP-sDI" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="9fy-LT-ovd"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="0rp-5j-gEA" secondAttribute="trailing" constant="40" id="C6T-St-f4h"/>
                             <constraint firstItem="ZP1-nP-gwH" firstAttribute="top" secondItem="0rp-5j-gEA" secondAttribute="bottom" constant="10" id="Ehk-qy-jC5"/>
+                            <constraint firstItem="fQh-gf-nTN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="GhV-w5-AH8"/>
                             <constraint firstItem="W9m-Bf-wV6" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="H2g-P9-9T2"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="4FL-eP-sDI" secondAttribute="trailing" constant="100" id="HO3-Nz-9Q5"/>
                             <constraint firstItem="rcf-CV-csS" firstAttribute="top" secondItem="ZP1-nP-gwH" secondAttribute="bottom" constant="10" id="SHK-lZ-9Ty"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="ZP1-nP-gwH" secondAttribute="trailing" constant="40" id="U2H-No-9Vk"/>
+                            <constraint firstItem="fQh-gf-nTN" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" multiplier="0.45" id="U9t-K7-wez"/>
                             <constraint firstItem="rcf-CV-csS" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="aWU-PY-6XD"/>
+                            <constraint firstItem="lhT-4t-lkI" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="100" id="bji-Si-2Xy"/>
+                            <constraint firstItem="4FL-eP-sDI" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="100" id="dDd-6M-iEp"/>
                             <constraint firstItem="0rp-5j-gEA" firstAttribute="top" secondItem="W9m-Bf-wV6" secondAttribute="bottom" constant="10" id="dP2-Js-zih"/>
+                            <constraint firstItem="4FL-eP-sDI" firstAttribute="top" secondItem="fQh-gf-nTN" secondAttribute="bottom" id="emv-2H-O8x"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="lhT-4t-lkI" secondAttribute="trailing" constant="100" id="g7e-i2-Bmy"/>
+                            <constraint firstItem="fQh-gf-nTN" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="j1G-qE-tEL"/>
                             <constraint firstItem="0rp-5j-gEA" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="llu-6P-e9T"/>
+                            <constraint firstItem="fQh-gf-nTN" firstAttribute="top" secondItem="lhT-4t-lkI" secondAttribute="bottom" id="nZ9-T9-Fmx"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="fQh-gf-nTN" secondAttribute="bottom" constant="50" id="ok4-RN-EOp"/>
                             <constraint firstItem="W9m-Bf-wV6" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="sEp-ay-g04"/>
+                            <constraint firstItem="lhT-4t-lkI" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="sP7-hK-EvQ"/>
                             <constraint firstItem="ZP1-nP-gwH" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="uVh-QR-trI"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="W9m-Bf-wV6" secondAttribute="trailing" constant="40" id="vIx-6X-Vju"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="activityIndicator" destination="fds-sk-dBL" id="TlQ-Ww-BPd"/>
+                        <outlet property="barChart" destination="fQh-gf-nTN" id="olC-8y-p5o"/>
                         <outlet property="companyNameLabel" destination="Gyu-0X-GRG" id="8ps-ZW-7iD"/>
                         <outlet property="companySymbolLabel" destination="93b-X1-HCI" id="gnM-dP-fGr"/>
                         <outlet property="currencyLabel" destination="wFy-Wd-VNY" id="xZ8-F5-GUe"/>
+                        <outlet property="dateLabel" destination="4FL-eP-sDI" id="car-it-iqH"/>
+                        <outlet property="historicPriceLabel" destination="lhT-4t-lkI" id="sMF-U8-Lid"/>
                         <outlet property="logoView" destination="Cvj-CU-hpf" id="Qph-14-Cuu"/>
                         <outlet property="priceChangeLabel" destination="QUo-ES-51O" id="7hY-AP-0gh"/>
                         <outlet property="priceLabel" destination="sYl-gh-g4Y" id="IrW-M1-cTd"/>
@@ -274,6 +300,9 @@
         </scene>
     </scenes>
     <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="systemYellowColor">
             <color red="1" green="0.80000000000000004" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

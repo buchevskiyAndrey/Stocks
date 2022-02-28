@@ -14,6 +14,4 @@ struct QouteData: Decodable {
     let latestPrice: Double
     let changePercent: Double
     let currency: String
-
-  
 }
