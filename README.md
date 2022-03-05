@@ -1,6 +1,7 @@
 # Stocks
 Stocks - это приложение, где вы в два клика можете посмореть актуальную информацию о любой акции.
-<img src="https://user-images.githubusercontent.com/99677952/153943249-8acc3174-d6d1-4bfd-ba62-a7a3cd6e52d6.png" width="300" /> <img src="https://user-images.githubusercontent.com/99677952/153943547-ce58a666-0f50-4599-8247-6ac493e89dea.png" width="300" /> <img src="https://user-images.githubusercontent.com/99677952/153943550-b3d438f5-0ee1-4c92-bf58-7746aa81a5cd.png" width="300" /> 
+<img src="https://user-images.githubusercontent.com/99677952/153943249-8acc3174-d6d1-4bfd-ba62-a7a3cd6e52d6.png" width="300" /> <img src="https://user-images.githubusercontent.com/99677952/153943547-ce58a666-0f50-4599-8247-6ac493e89dea.png" width="300" /> <img src="https://user-images.githubusercontent.com/99677952/156874965-f1361674-45d9-4076-af10-3954825a1869.png" width="300" /> 
+
 
 Приложение встречает нас SearchBar'ом и вьюшкой с подсказкой, что нужно делать (которая исчезает, когда вызывается метод willPresentSearchController). 
 Пользователь может ввести фрагмент тиккера или названия компания, после чего появляется TableView с результатом поиска. Я ввел таймер на отправление запроса на сервер, чтобы пользователь успел ввести текст.
